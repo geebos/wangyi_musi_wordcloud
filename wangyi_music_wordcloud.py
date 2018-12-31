@@ -47,9 +47,10 @@ def _content_generator(music_id):
 
 class WangYiMusicWordCloud:
     stop_words = ['首歌']
-    def __init__(self, music_id, mask=None, stop_words=None):
+    def __init__(self, music_id, mask=None, font_path=None, stop_words=None):
         self.music_id = music_id
         self.mask = mask
+        self.font_path = font_path
 
         if not stop_words is None:
             self.stop_words+=stop_words
@@ -92,7 +93,6 @@ class WangYiMusicWordCloud:
 
     def generate(self, **kwargs):
         default_kwargs = {
-            'font_path':'microsoft-yahei.ttf',
             'background_color': "white",
             'width': 1000,
             'height': 860,
@@ -102,10 +102,15 @@ class WangYiMusicWordCloud:
         }
         if not self.mask is None:
             default_kwargs['mask'] = np.array(Image.open(self.mask))
+        if not self.font_path is None:
+            default_kwargs['font_path'] = self.font_path
+        elif 'font_path' not in kwargs:
+            raise ValueError('缺少参数 font_path')
         default_kwargs.update(kwargs)
 
         str_text = self.get_words_text()
-        self.img_wordcloud = wordcloud.WordCloud(**default_kwargs).generate(str_text)
+        self.wordcloud = wordcloud.WordCloud(**default_kwargs)
+        self.img_wordcloud = self.wordcloud.generate(str_text)
 
     def show_wordcloud(self):
         if self.img_wordcloud is None:
@@ -115,8 +120,12 @@ class WangYiMusicWordCloud:
         plt.imshow(self.img_wordcloud)
         plt.show()
 
+    def to_file(self, filename):
+        self.wordcloud.to_file(filename)
+
 if __name__ == '__main__':
     music_id = '26608973'
-    wordcloud_obj = WangYiMusicWordCloud(music_id, mask='mask.jpg')
+    wordcloud_obj = WangYiMusicWordCloud(music_id, mask='mask.jpg', font_path='microsoft-yahei.ttf')
     wordcloud_obj.show_wordcloud()
+    wordcloud_obj.to_file('result.jpg')
 
