@@ -121,6 +121,8 @@ class WangYiMusicWordCloud:
         plt.show()
 
     def to_file(self, filename):
+        if not hasattr(self, 'wordcloud'):
+            self.generate()
         self.wordcloud.to_file(filename)
 
 if __name__ == '__main__':
